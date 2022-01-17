@@ -1,12 +1,15 @@
 import requests
-from datetime import datetime
+# from datetime import timezone
+import datetime
+# from dateutil import parser
+
 
 response = requests.get(
     "https://us-central1-marcy-playground.cloudfunctions.net/ordoroCodingTest")
 
 respose_data = response.json()['data']
 
-unique_emails = {} #set - needs to be unique
+unique_emails = set() #set - needs to be unique
 user_domain_counts = {}
 april_emails = []
 
@@ -15,7 +18,7 @@ def check_unique_email(email):
     If not, adds the email. 
     Returns None. 
     """
-    if email not in unique_emails:
+    if email not in unique_emails and email is not None:
         unique_emails.add(email)
 
 
@@ -25,19 +28,28 @@ def check_domain(email):
     If not, adds the domain and sets count to 1.
     Returns None. 
     """
-    domain = email.split('@')[1]
-    user_domain_counts[domain]= user_domain_counts.get(domain, 0) + 1
+    try: 
+        domain = email.split('@')[1]
+        user_domain_counts[domain]= user_domain_counts.get(domain, 0) + 1
+    except AttributeError:
+        print("no email")
 
-# def check_april_login(timestamp):
-#     """ Accepts a timestamp from the API formatted as TO DO!!!!!!!!!!!"""
-#     utc_datetime = datetime.utcfromtimestamp(timestamp)
-#     print(utc_datetime)
+def check_april_login(timestamp, email):
+    """ Accepts a time and date timestamp from the API formatted as 
+    "yyyy-mm-ddThh:mm:ss+h" and checks if their last login was in April. 
+    If so, adds the email to april_emails. 
+    Return None."""
+    # NOT CURRENTLY CONVERTING TO UTC FIRST - TO DO
+    # utc_datetime = datetime.date.fromtimestamp(timestamp, tz=timezone.utc)
 
-# check_april_login('2014-04-22T09:31:56+04:00')
+    date_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
+    if date_time.month == 4:
+        april_emails.append(email)
 
 
 for data in respose_data:
     # add to unique_emails if not already there
+    print(data['email'])
     check_unique_email(data['email'])
     
     # add domain to user_domain_counts and increase count
@@ -50,8 +62,8 @@ for data in respose_data:
 
 # TO DO:
 #   response.status_code - for a try/ except?
-#   list of distinct emails
-#   number of users per domain (as a dictionary)
+#   handle empty emails (null) and login_dates ("", null)
+#   add try/ excepts to 3 functions
 #   users who logged in in April (UTC) ????
 #   formatted like this: 
 #       {
