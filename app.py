@@ -1,5 +1,5 @@
 import requests
-from datetime import timezone
+# from datetime import timezone
 import datetime
 
 
@@ -71,17 +71,10 @@ def remove_domains_with_only_one_email(user_domain_counts):
     """Accepts the user_domain_counts dictionary and removes any domains
     that only have one email associated. 
     Returns None.""" 
-    print(user_domain_counts)
     to_delete = [key for key in user_domain_counts if user_domain_counts[key] == 1]
 
     for key in to_delete:
-        print(user_domain_counts[key])
         del user_domain_counts[key]
-
-    # for key in user_domain_counts:
-    #     print(user_domain_counts[key])
-    #     if user_domain_counts[key] == 1:
-    #         del user_domain_counts[key]
 
 
 # loop through data by the API
@@ -95,7 +88,6 @@ for data in respose_data:
     # add domain to user_domain_counts and increase count
     check_domain(email)
 
-
     # add email to april_emails if user logged in in April
     check_april_login(login_date, email)
 
@@ -107,11 +99,13 @@ remove_domains_with_only_one_email(user_domain_counts)
 try:
     request_obj = {
         "your_email_address": "ssojensen@gmail.com", 
-        "unique_emails": unique_emails, 
+        "unique_emails": list(unique_emails), 
         "user_domain_counts": user_domain_counts, 
         "april_emails": april_emails,
     }
+
     post_response = requests.post(api_url, data=request_obj)
+    print(post_response.status_code)
     post_response.raise_for_status()
 except requests.exceptions.HTTPError as errh:
     print ("Http Error:",errh)
@@ -125,19 +119,9 @@ except requests.exceptions.RequestException as err:
 
 
 # TO DO:
-#   users who logged in in April (UTC) ????
+#   update check_april_login to convert time to UTC first
 #   add unit tests
-#   formatted like this: 
-#       {
-#           "your_email_address": 'whoareu@whowho.com',
-#           "unique_emails": ["email1@test.com", "email2@test.com"],
-#           "user_domain_counts": {
-#           "bing.com": 2,
-#           "sling.com": 3
-#       },
-#           "april_emails": ["email1@test.com", "email2@test.com"]
-#       }
-#   runtime complexity
+
 
 
 
