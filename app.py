@@ -10,6 +10,7 @@ api_url = "https://us-central1-marcy-playground.cloudfunctions.net/ordoroCodingT
 try: 
     response = requests.get(api_url)
     respose_data = response.json()["data"]
+    print(f'GET status code: {response.status_code}')
     response.raise_for_status()
 except requests.exceptions.HTTPError as errh:
     print ("Http Error:",errh)
@@ -105,7 +106,7 @@ try:
     }
 
     post_response = requests.post(api_url, data=request_obj)
-    print(post_response.status_code)
+    print(f'POST status code: {post_response.status_code}')
     post_response.raise_for_status()
 except requests.exceptions.HTTPError as errh:
     print ("Http Error:",errh)
