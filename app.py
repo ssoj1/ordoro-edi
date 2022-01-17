@@ -5,6 +5,8 @@ import datetime
 
 api_url = "https://us-central1-marcy-playground.cloudfunctions.net/ordoroCodingTest"
 
+
+# make a GET request to the API for data
 try: 
     response = requests.get(api_url)
     respose_data = response.json()["data"]
@@ -18,10 +20,12 @@ except requests.exceptions.Timeout as errt:
 except requests.exceptions.RequestException as err:
     print ("OOps: Something Else",err)
 
+
 # Initial data structures for POST request
 unique_emails = set()
 user_domain_counts = {}
 april_emails = []
+
 
 def check_unique_email(email):
     """Accepts a string email address and checks if it's in unique_emails. 
@@ -30,7 +34,6 @@ def check_unique_email(email):
     """
     if email not in unique_emails and email is not None:
         unique_emails.add(email)
-
 
 def check_domain(email):
     """Accepts a string email. If email domain is in user_domain_counts, 
@@ -64,7 +67,24 @@ def check_april_login(timestamp, email):
     except ValueError:
         print("bad date")
 
-# loop through list of dictionaries returned by the API
+def remove_domains_with_only_one_email(user_domain_counts):
+    """Accepts the user_domain_counts dictionary and removes any domains
+    that only have one email associated. 
+    Returns None.""" 
+    print(user_domain_counts)
+    to_delete = [key for key in user_domain_counts if user_domain_counts[key] == 1]
+
+    for key in to_delete:
+        print(user_domain_counts[key])
+        del user_domain_counts[key]
+
+    # for key in user_domain_counts:
+    #     print(user_domain_counts[key])
+    #     if user_domain_counts[key] == 1:
+    #         del user_domain_counts[key]
+
+
+# loop through data by the API
 for data in respose_data:
     email = data["email"]
     login_date = data["login_date"]
@@ -75,9 +95,15 @@ for data in respose_data:
     # add domain to user_domain_counts and increase count
     check_domain(email)
 
+
     # add email to april_emails if user logged in in April
     check_april_login(login_date, email)
 
+# remove domains with only 1 email associated
+remove_domains_with_only_one_email(user_domain_counts)
+
+
+# make a POST request to the API with transformed data
 try:
     request_obj = {
         "your_email_address": "ssojensen@gmail.com", 
