@@ -1,7 +1,7 @@
 import requests
-# from datetime import timezone
+from datetime import timezone
 import datetime
-# from dateutil import parser
+
 
 api_url = "https://us-central1-marcy-playground.cloudfunctions.net/ordoroCodingTest"
 
@@ -52,9 +52,11 @@ def check_april_login(timestamp, email):
     If email is absent, prints "bad date".
     Return None."""
     # NOT CURRENTLY CONVERTING TO UTC FIRST - TO DO
-    # utc_datetime = datetime.date.fromtimestamp(timestamp, tz=timezone.utc)
+
     try:
         date_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
+        # utc_datetime = datetime.date.fromtimestamp(date_time, tz=timezone.utc)
+
         if date_time.month == 4:
             april_emails.append(email)
     except TypeError:
@@ -76,15 +78,23 @@ for data in respose_data:
     # add email to april_emails if user logged in in April
     check_april_login(login_date, email)
 
-
-request_obj = {
-    "your_email_address": "ssojensen@gmail.com", 
-    "unique_emails": unique_emails, 
-    "user_domain_counts": user_domain_counts, 
-    "april_emails": april_emails,
-}
-post_response = requests.post(api_url, data=request_obj)
-
+try:
+    request_obj = {
+        "your_email_address": "ssojensen@gmail.com", 
+        "unique_emails": unique_emails, 
+        "user_domain_counts": user_domain_counts, 
+        "april_emails": april_emails,
+    }
+    post_response = requests.post(api_url, data=request_obj)
+    post_response.raise_for_status()
+except requests.exceptions.HTTPError as errh:
+    print ("Http Error:",errh)
+except requests.exceptions.ConnectionError as errc:
+    print ("Error Connecting:",errc)
+except requests.exceptions.Timeout as errt:
+    print ("Timeout Error:",errt)
+except requests.exceptions.RequestException as err:
+    print ("OOps: Something Else",err)
 
 
 
