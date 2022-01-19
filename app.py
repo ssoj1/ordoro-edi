@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 import requests
-# from datetime import timezone
 import datetime
 
 
@@ -58,7 +58,7 @@ def check_april_login(timestamp, email):
     # NOT CURRENTLY CONVERTING TO UTC FIRST - TO DO
 
     try:
-        date_time = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
+        date_time=datetime.datetime.fromisoformat(timestamp)
         # utc_datetime = datetime.date.fromtimestamp(date_time, tz=timezone.utc)
 
         if date_time.month == 4:
